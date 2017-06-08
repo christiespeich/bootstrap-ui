@@ -97,4 +97,110 @@ class HtmlHelper extends \Cake\View\Helper\HtmlHelper
 
         return $this->tag($tag, $text, $this->injectClasses($classes, $options));
     }
+	
+	/**
+	 * Returns Bootstrap Carousel Markup
+	 * 
+	 * @param string $id ID of the carousel in outer DIV
+	 * @param array $options options for the carousel
+	 * @param array $items the photos and optional captions
+	 * @return string HTML badge markup.
+	 */
+	public function carousel( $id = 'MyCarousel', $outer_tag = 'div', array $options = [], array $items = [] ) {
+		// if no items, bail
+		if ( !is_array( $items) || count( $items  ) == 0 ) {
+			return '';
+		}
+			
+		// set defaults
+		$default_item_options = [
+			'src'		=>	'',
+			'alt'		=>	'',
+			'caption'	=>	'',
+			'link'		=>	'',
+		];
+		
+		$default_options = [
+			'data-ride'		=>	'carousel',
+			'data-interval'	=>	'5000',
+			'data-pause'	=>	'hover',
+			'data-wrap'		=>	'true',
+			'data-keyboard'	=>	'true',
+			'class'			=>	'carousel',
+			'use-glyph'		=>	true,
+			'slide'			=>	true,
+		];
+		$options += $default_options;
+				
+		$use_glyph =  $options['use-glyph'];
+		$class = 'carousel';
+		if ( $options['slide'] ) {
+			$class .= ' slide';
+		}
+		unset( $options['use-glyph'] );
+		unset( $options['slide'] );
+		$options['id'] = h($id);
+				
+		
+		$indicator_items = '';
+		$item = '';
+		for ( $x = 0; $x < count( $items ); $x++ ) {
+			
+			// INDICATORS
+			$indicator_options = [  'data-target' => '#' . $options['id'],
+									'data-slide-to'  =>  $x,
+								];
+			if ( $x == 0 ) {
+				$indicator_options[ 'class' ] = 'active';
+			}
+			
+			$indicator_items .= $this->tag( 'li', '', $indicator_options );
+			
+			// ITEMS
+			// set defaults for items			
+			$items[ $x ] +=  $default_item_options;
+			
+			// caption
+			$caption = '';
+			if ( $items[ $x ][ 'caption' ] != '' ) {
+				$caption = $this->tag( 'div', $items[ $x ][ 'caption' ], [ 'class' => 'carousel-caption' ] );
+			}
+			
+			// image
+			$image_options = [];
+			if ( $items[ $x ][ 'link' ] != '' ) {
+				$image_options[ 'url' ] = $items[ $x ][ 'link' ];
+			}
+			$image = $this->image( $items[ $x ][ 'src' ], $image_options );
+			$class = 'item';
+			if ( $x == 0 ) {
+				$class .= ' active';
+			}
+			$item .= $this->tag( 'div', $image . $caption, [ 'class'	=>	$class ] );
+		}
+		$indicators = $this->tag( 'div', $indicator_items, [ 'class' => 'carousel-indicators' ] );
+		
+		$wrapper = $this->tag( 'div', $item, [ 'class'	=>	'carousel-inner', 'role'	=>	'listbox' ] );
+		
+		// controls
+		if ( $use_glyph ) {
+			$class_prev = 'glypicon glyphicon-chevron-left';
+			$class_next = 'glypicon glyphicon-chevron-right';
+		} else {
+			$class_prev = 'icon-prev';
+			$class_next = 'icon-next';
+		}
+		$previous = $this->tag( 'span', '', [ 'class'	=> $class_prev	, 'aria-hidden'	=>	'true' ] );
+		$previous .= $this->tag( 'span', 'Previous', [ 'class'	=>	'sr-only' ] );
+		
+		$next = $this->tag( 'span', '', [ 'class'	=>	$class_next, 'aria-hidden'	=>	'true' ] );
+		$next .= $this->tag( 'span', 'Next', [ 'class'	=>	'sr-only' ] );
+		
+		$controls = $this->tag( 'a', $previous,  [ 'href'	=>	'#' . $options['id'], 'role'	=>	'button', 'data-slide' => 'prev', 'class'	=>	'left carousel-control' ] );
+		$controls .= $this->tag( 'a', $next,  [ 'href'	=>	'#' . $options['id'], 'role'	=>	'button', 'data-slide' => 'next', 'class'	=>	'right carousel-control' ] );
+		
+		// outer wrapper
+		return $this->tag( $outer_tag, $indicators . $wrapper . $controls, $options  );
+		
+	}
 }
