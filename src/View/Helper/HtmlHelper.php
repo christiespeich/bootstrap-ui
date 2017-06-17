@@ -178,27 +178,34 @@ class HtmlHelper extends \Cake\View\Helper\HtmlHelper
 			}
 			$item .= $this->tag( 'div', $image . $caption, [ 'class'	=>	$class ] );
 		}
-		$indicators = $this->tag( 'div', $indicator_items, [ 'class' => 'carousel-indicators' ] );
+		if ( count( $items ) > 1 ) {
+			$indicators = $this->tag( 'div', $indicator_items, [ 'class' => 'carousel-indicators' ] );
+		} else {
+			$indicators = '';
+		}
 		
 		$wrapper = $this->tag( 'div', $item, [ 'class'	=>	'carousel-inner', 'role'	=>	'listbox' ] );
 		
 		// controls
-		if ( $use_glyph ) {
-			$class_prev = 'glypicon glyphicon-chevron-left';
-			$class_next = 'glypicon glyphicon-chevron-right';
-		} else {
-			$class_prev = 'icon-prev';
-			$class_next = 'icon-next';
+		$controls = '';
+		if ( count( $items ) > 1 ) {
+			if ( $use_glyph ) {
+				$class_prev = 'glypicon glyphicon-chevron-left';
+				$class_next = 'glypicon glyphicon-chevron-right';
+			} else {
+				$class_prev = 'icon-prev';
+				$class_next = 'icon-next';
+			}
+			$previous = $this->tag( 'span', '', [ 'class'	=> $class_prev	, 'aria-hidden'	=>	'true' ] );
+			$previous .= $this->tag( 'span', 'Previous', [ 'class'	=>	'sr-only' ] );
+
+			$next = $this->tag( 'span', '', [ 'class'	=>	$class_next, 'aria-hidden'	=>	'true' ] );
+			$next .= $this->tag( 'span', 'Next', [ 'class'	=>	'sr-only' ] );
+
+
+			$controls = $this->tag( 'a', $previous,  [ 'href'	=>	'#' . $options['id'], 'role'	=>	'button', 'data-slide' => 'prev', 'class'	=>	'left carousel-control' ] );
+			$controls .= $this->tag( 'a', $next,  [ 'href'	=>	'#' . $options['id'], 'role'	=>	'button', 'data-slide' => 'next', 'class'	=>	'right carousel-control' ] );
 		}
-		$previous = $this->tag( 'span', '', [ 'class'	=> $class_prev	, 'aria-hidden'	=>	'true' ] );
-		$previous .= $this->tag( 'span', 'Previous', [ 'class'	=>	'sr-only' ] );
-		
-		$next = $this->tag( 'span', '', [ 'class'	=>	$class_next, 'aria-hidden'	=>	'true' ] );
-		$next .= $this->tag( 'span', 'Next', [ 'class'	=>	'sr-only' ] );
-		
-		$controls = $this->tag( 'a', $previous,  [ 'href'	=>	'#' . $options['id'], 'role'	=>	'button', 'data-slide' => 'prev', 'class'	=>	'left carousel-control' ] );
-		$controls .= $this->tag( 'a', $next,  [ 'href'	=>	'#' . $options['id'], 'role'	=>	'button', 'data-slide' => 'next', 'class'	=>	'right carousel-control' ] );
-		
 		// outer wrapper
 		return $this->tag( $outer_tag, $indicators . $wrapper . $controls, $options  );
 		
